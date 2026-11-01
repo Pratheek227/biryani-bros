@@ -84,7 +84,67 @@ h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 14px; }
 .item { background: var(--surface); border: 1px solid rgba(255, 162, 26, 0.5); border-radius: 10px; padding: 14px 14px 14px 16px; display: flex; align-items: center; gap: 12px; min-width: 0;
   box-shadow: 0 0 12px rgba(255, 162, 26, 0.22), inset 0 0 14px rgba(255, 162, 26, 0.07); }
-.item.has { border-color: var(--magenta); box-shadow: 0 0 14px var(--glow-magenta), inset 0 0 16px rgba(255, 74, 43, 0.12); }
+/* Allow rising flame particles to float out of the card */
+.item {
+  position: relative;
+  overflow: visible !important;
+}
+
+/* Fire effect on the dish card when added or count increases */
+.item.item-fire {
+  border-color: #FF5A1F !important;
+  box-shadow: 0 0 24px rgba(255, 74, 43, 0.85), inset 0 0 20px rgba(255, 140, 26, 0.25) !important;
+  animation: itemFireJolt 0.55s ease-out;
+}
+
+.item.item-fire .name span {
+  color: #FFF4D9 !important;
+  text-shadow: 0 0 8px #FFD272, 0 0 18px #FF4A2B !important;
+  transition: color 0.2s, text-shadow 0.2s;
+}
+
+.item.item-fire .price {
+  color: #FFD272 !important;
+  text-shadow: 0 0 10px #FFA21A !important;
+}
+
+/* Rising fire embers from the dish item */
+.dish-flame-particle {
+  position: absolute;
+  bottom: 8px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 15;
+  background: radial-gradient(circle, #FFFAD6 0%, #FFA21A 45%, #FF3A1A 85%, transparent 100%);
+  box-shadow: 0 0 8px #FF8A1A, 0 0 16px #FF3A1A;
+  animation: dishFireRise 0.85s ease-out forwards;
+}
+
+@keyframes itemFireJolt {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.02) translateY(-2px); }
+  60% { transform: scale(0.99); }
+  100% { transform: scale(1); }
+}
+
+@keyframes dishFireRise {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(calc(var(--dx) * 0.3), -20px) scale(1.2);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translate(calc(var(--dx) * 0.7), -55px) scale(0.85);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), -90px) scale(0.2);
+  }
+}
 .info { flex: 1; min-width: 0; }
 .name { display: flex; gap: 8px; align-items: flex-start; font-weight: 700; line-height: 1.3; }
 .price { font-variant-numeric: tabular-nums; color: var(--cyan); font-weight: 700; margin-top: 2px; padding-left: 22px; }
@@ -133,7 +193,69 @@ textarea { resize: vertical; }
 .times { display: flex; flex-wrap: wrap; gap: 8px; }
 .tchip { padding: 0 14px; }
 .need { color: var(--cyan); font-weight: 700; font-size: 14px; min-height: 1.4em; margin: 10px 0 0; }
-.seg label.soon { opacity: 0.5; border-style: dashed; cursor: not-allowed; }
+.seg label.soon { }
+/* "Soon" options and out-of-stock buttons: shimmering sweep + soft glow so they look alive but clearly locked */
+.seg label.soon { position: relative; overflow: hidden; color: var(--muted); border: 1px dashed rgba(255, 162, 26, .6); cursor: not-allowed;
+  background: linear-gradient(110deg, rgba(255, 162, 26, .06), rgba(255, 74, 43, .06)); transition: transform .2s, box-shadow .2s, border-color .2s; }
+.seg label.soon:hover { transform: translateY(-1px); border-color: var(--cyan); box-shadow: 0 0 14px var(--glow-cyan); }
+.seg label.soon::before, .add.soon-btn::before { content: ""; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255, 214, 150, .38), transparent); transform: skewX(-20deg); }
+.add.soon-btn { position: relative; overflow: hidden; background: linear-gradient(110deg, #2E1E0E, #4A2F13 50%, #2E1E0E); color: #FFD18A;
+  border: 1px dashed rgba(255, 162, 26, .75); cursor: not-allowed; box-shadow: 0 0 10px rgba(255, 162, 26, .3); letter-spacing: .08em; text-transform: uppercase; font-size: 14px; }
+.item.soon-item { border-style: dashed; }
+.item.soon-item .name span { opacity: .8; }
+@keyframes soonShine { 0% { left: -70%; } 60%, 100% { left: 130%; } }
+@keyframes soonGlow { 0%, 100% { box-shadow: 0 0 6px rgba(255, 162, 26, .15); } 50% { box-shadow: 0 0 16px rgba(255, 162, 26, .5); } }
+@media (prefers-reduced-motion: no-preference) {
+  .seg label.soon, .add.soon-btn { animation: soonGlow 2.4s ease-in-out infinite; }
+  .seg label.soon::before, .add.soon-btn::before { animation: soonShine 2.8s ease-in-out infinite; }
+  .add.soon-btn { animation-delay: .4s; }
+}
+
+/* Round clock handover-time picker */
+.clockbox { display: grid; justify-items: center; }
+.ck { display: grid; gap: 12px; justify-items: center; width: 100%; }
+.ck-top { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.ck-read { display: flex; align-items: center; gap: 4px; }
+.ck-colon { font: 700 34px var(--font-display); color: var(--cyan); text-shadow: 0 0 10px var(--glow-cyan); }
+.ck-hm { min-width: 66px; min-height: 58px; padding: 0 8px; background: rgba(255, 162, 26, .08); border: 1px solid var(--line); border-radius: 10px;
+  font: 700 34px var(--font-display); color: var(--ink); transition: border-color .2s, box-shadow .2s, background .2s; }
+.ck-hm.on { border-color: var(--magenta); background: rgba(255, 74, 43, .14); box-shadow: 0 0 14px var(--glow-magenta); color: #fff; }
+.ck-hm:disabled { opacity: .4; cursor: not-allowed; }
+.ck-ap { display: grid; gap: 6px; }
+.ck-ap button { min-width: 56px; min-height: 26px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font-weight: 700; font-size: 13px; letter-spacing: .06em; color: var(--muted); }
+.ck-ap button[aria-pressed="true"] { border-color: var(--cyan); color: #1A0F00; background: var(--cyan); box-shadow: 0 0 10px var(--glow-cyan); }
+.ck-ap button:disabled { opacity: .35; cursor: not-allowed; }
+.ck-face { width: min(100%, 280px); height: auto; touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer;
+  filter: drop-shadow(0 0 10px var(--glow-cyan)) drop-shadow(0 0 22px rgba(255, 74, 43, .25)); }
+.ck-bg { fill: #0D0704; stroke: rgba(255, 162, 26, .55); stroke-width: 1.5; }
+.ck-ring { fill: none; stroke: rgba(255, 162, 26, .5); stroke-width: 1; stroke-dasharray: 2 6; transform-origin: 120px 120px; }
+.ck-t { stroke: rgba(255, 241, 224, .22); stroke-width: 1; }
+.ck-t.maj { stroke: rgba(255, 162, 26, .75); stroke-width: 1.8; }
+#ck-hand { transform-origin: 120px 120px; opacity: 0; transition: transform .55s cubic-bezier(.34, 1.4, .4, 1), opacity .25s; pointer-events: none; }
+#ck-hand line { stroke: var(--magenta); stroke-width: 2.5; stroke-linecap: round; filter: drop-shadow(0 0 4px var(--magenta)); }
+.ck-tip { fill: var(--magenta); filter: drop-shadow(0 0 8px var(--glow-magenta)); transform-box: fill-box; transform-origin: center; }
+.ck-hub { fill: var(--magenta); filter: drop-shadow(0 0 6px var(--glow-magenta)); }
+.cn { cursor: pointer; outline: none; }
+.cn circle { fill: transparent; transition: fill .15s; }
+.cn text { fill: var(--ink); font: 700 17px var(--font-display); text-anchor: middle; pointer-events: none; }
+.cn:hover circle { fill: rgba(255, 162, 26, .2); }
+.cn.on text { fill: #1A0500; }
+.cn.on:hover circle { fill: transparent; }
+.cn.off { cursor: not-allowed; }
+.cn.off text { fill: rgba(191, 164, 138, .28); }
+.cn.off:hover circle { fill: transparent; }
+.cn:focus-visible circle { stroke: var(--cyan); stroke-width: 2; }
+.ck-hint { margin: 0; font-size: 13px; color: var(--muted); text-align: center; min-height: 1.4em; }
+@keyframes ckSpin { to { transform: rotate(360deg); } }
+@keyframes ckPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.14); } }
+@keyframes ckSwap { from { opacity: 0; transform: scale(.88); transform-origin: 120px 120px; } to { opacity: 1; transform: scale(1); transform-origin: 120px 120px; } }
+@media (prefers-reduced-motion: no-preference) {
+  .ck-ring { animation: ckSpin 45s linear infinite; }
+  .ck-tip { animation: ckPulse 1.8s ease-in-out infinite; }
+  #ck-nums.swap { animation: ckSwap .35s ease; }
+}
+
 .note { font-weight: 400; font-size: 13px; color: var(--muted); }
 .preview { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 13px; min-height: 140px; color: var(--muted); }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; align-items: center; }
@@ -179,6 +301,80 @@ textarea { resize: vertical; }
 }
 .splash.leaving { animation: splashOut 0.5s ease forwards; pointer-events: none; }
 
+
+/* Daily order limit: electric-blue banner with a continuously flickering blue flame */
+.capacity-banner {
+  --blue: #3AA0FF; --blue-hi: #9AD7FF; --blue-deep: #1F5BFF;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 14px;
+  margin: 18px 0 8px;
+  padding: 14px 16px;
+  overflow: visible;
+  border: 1px solid var(--blue);
+  border-radius: 12px;
+  background: linear-gradient(110deg, rgba(31, 91, 255, .20), rgba(58, 160, 255, .07));
+  box-shadow: 0 0 16px rgba(58, 160, 255, .28), inset 0 0 20px rgba(58, 160, 255, .08);
+}
+.capacity-icon { position: relative; width: 42px; height: 56px; display: grid; place-items: end center; }
+.flame { width: 40px; height: 54px; overflow: visible;
+  filter: drop-shadow(0 0 5px #3AA0FF) drop-shadow(0 0 14px rgba(31, 91, 255, .85)); }
+.capacity-embers { position: absolute; left: 18px; top: 4px; width: 42px; height: 0; pointer-events: none; }
+.capacity-embers i { position: absolute; bottom: 0; left: var(--l); width: var(--s); height: var(--s); border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, #E6F6FF 0%, #5CC8FF 45%, rgba(31, 91, 255, 0) 75%); box-shadow: 0 0 8px #3AA0FF; }
+.capacity-copy { min-width: 0; }
+.capacity-title {
+  margin: 0;
+  color: var(--blue-hi);
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(58, 160, 255, .6);
+}
+.capacity-sub { margin: 4px 0 0; color: #B9DDFF; font-size: 13px; line-height: 1.4; }
+.capacity-sub strong { color: #5CB8FF; }
+@media (max-width: 420px) {
+  .capacity-banner { gap: 10px; padding: 12px; }
+  .capacity-title { font-size: 15px; }
+  .capacity-sub { font-size: 12px; }
+}
+@keyframes flameSway {
+  0%   { transform: scale(1, 1) skewX(0deg); }
+  25%  { transform: scale(.95, 1.08) skewX(-3deg); }
+  50%  { transform: scale(1.05, .95) skewX(2.5deg); }
+  75%  { transform: scale(.97, 1.06) skewX(-2deg); }
+  100% { transform: scale(1, 1) skewX(0deg); }
+}
+@keyframes bannerGlow {
+  0%, 100% { box-shadow: 0 0 14px rgba(58, 160, 255, .25), inset 0 0 18px rgba(58, 160, 255, .07); }
+  50%      { box-shadow: 0 0 30px rgba(58, 160, 255, .60), 0 0 54px rgba(31, 91, 255, .35), inset 0 0 26px rgba(58, 160, 255, .16); }
+}
+@keyframes blueText {
+  0%, 100% { text-shadow: 0 0 8px rgba(58, 160, 255, .5); }
+  50%      { text-shadow: 0 0 8px #9AD7FF, 0 0 22px #3AA0FF, 0 0 40px #1F5BFF; }
+}
+@keyframes blueEmber {
+  0%   { opacity: 0; transform: translate(0, 0) scale(1); }
+  15%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--x), -58px) scale(.2); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .capacity-banner { animation: bannerGlow 2.2s ease-in-out infinite; }
+  .capacity-banner::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, transparent, #9AD7FF, #3AA0FF, transparent); background-size: 200% 100%;
+    box-shadow: 0 0 8px #3AA0FF; animation: sweep 3s linear infinite; }
+  .capacity-title { animation: blueText 2.2s ease-in-out infinite; }
+  .flame .f-out  { transform-origin: 24px 62px; animation: flameSway 1.3s ease-in-out infinite; }
+  .flame .f-mid  { transform-origin: 24px 58px; animation: flameSway .9s ease-in-out infinite reverse; }
+  .flame .f-core { transform-origin: 24px 58px; animation: flameSway .65s ease-in-out infinite; }
+  .capacity-embers i { animation: blueEmber var(--d) ease-out var(--dl) infinite; }
+}
+
 /* Header contact row */
 .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 14px; }
 .meta .place { margin: 0; }
@@ -219,6 +415,8 @@ textarea { resize: vertical; }
   .ember { display: block; animation: emberRise var(--d) ease-out var(--dl) infinite; }
 }
 
+.lede + .lede { margin-top: 10px; }
+.avail { font-size: 12px; font-weight: 700; color: var(--veg); text-transform: uppercase; letter-spacing: 0.06em; }
 </style>
 
 </head>
@@ -230,7 +428,26 @@ textarea { resize: vertical; }
     <div class="meta">
       <p class="place">Only at CVG 200 for now &middot; 401 &amp; 402 shifts</p>
     </div>
-    <p class="lede">Choose your dishes and place your order at least one day before pickup. Pickup is next-day only, on 401 and 402 shift days (Sun–Wed).</p>
+    <p class="lede">Freshly prepared meals, made to order!<br>Order by 7 PM the day before. I personally bring your order to CVG 200 and hand it to you, so there’s no need to collect it. Available on 401 and 402 shift days (Sun–Wed).<br><span id="lede-soon">Home delivery coming soon!</span></p>
+    <aside class="capacity-banner" aria-label="Daily order limit">
+      <div class="capacity-icon" aria-hidden="true">
+        <svg class="flame" viewBox="0 0 48 64" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="fl-out" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#1F3FFF"/><stop offset="1" stop-color="#4FB4FF"/></linearGradient>
+            <linearGradient id="fl-mid" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#2F7BFF"/><stop offset="1" stop-color="#8FD6FF"/></linearGradient>
+            <linearGradient id="fl-core" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#7FD0FF"/><stop offset="1" stop-color="#F2FBFF"/></linearGradient>
+          </defs>
+          <path class="f-out" fill="url(#fl-out)" d="M24 2 C26 14 40 20 40 38 C40 52 33 62 24 62 C15 62 8 52 8 38 C8 30 12 25 15 20 C16 26 19 28 21 28 C20 18 21 9 24 2 Z"/>
+          <path class="f-mid" fill="url(#fl-mid)" d="M24 24 C26 32 33 36 33 45 C33 53 29 58 24 58 C19 58 15 53 15 45 C15 40 18 37 20 33 C21 36 22 37 23 37 C22 33 22 28 24 24 Z"/>
+          <path class="f-core" fill="url(#fl-core)" d="M24 41 C25.5 46 29 48 29 52 C29 56 27 58 24 58 C21 58 19 56 19 52 C19 48 22 46 24 41 Z"/>
+        </svg>
+        <div class="capacity-embers"><i style="--l:2px;--s:4px;--d:2.6s;--dl:0.0s;--x:-6px"></i><i style="--l:10px;--s:5px;--d:3.1s;--dl:0.7s;--x:8px"></i><i style="--l:18px;--s:3px;--d:2.4s;--dl:1.3s;--x:-10px"></i><i style="--l:26px;--s:6px;--d:3.4s;--dl:0.4s;--x:12px"></i><i style="--l:6px;--s:4px;--d:2.9s;--dl:1.9s;--x:4px"></i><i style="--l:22px;--s:3px;--d:2.7s;--dl:2.3s;--x:-4px"></i><i style="--l:14px;--s:5px;--d:3.2s;--dl:1.0s;--x:10px"></i><i style="--l:30px;--s:4px;--d:2.5s;--dl:2.8s;--x:-8px"></i><i style="--l:0px;--s:3px;--d:3.0s;--dl:1.6s;--x:6px"></i></div>
+      </div>
+      <div class="capacity-copy">
+        <p class="capacity-title">Only 15 orders per day!</p>
+        <p class="capacity-sub">Fresh batches. Limited spots. <strong>Once all 15 spots are booked, ordering closes.</strong> Don't wait to place your order!</p>
+      </div>
+    </aside>
     <div class="rules" id="rules"></div>
     <div class="legend">
       <span><i class="mark veg"></i> Vegetarian</span>
@@ -253,22 +470,23 @@ textarea { resize: vertical; }
       <div class="lbl" id="loc-lbl">Location
         <div class="seg" role="radiogroup" aria-labelledby="loc-lbl">
           <label for="loc-cvg"><input type="radio" name="loc" id="loc-cvg" value="CVG 200" checked> CVG 200</label>
-          <label class="soon" for="loc-more"><input type="radio" name="loc" id="loc-more" value="More" disabled> More locations soon</label>
+          <label class="soon" for="loc-more" id="loc-more-wrap"><input type="radio" name="loc" id="loc-more" value="More" disabled> <span id="loc-more-text">More locations soon</span></label>
         </div>
         <span class="note">Only at CVG 200 for now (401 and 402 shifts). More locations will open based on demand.</span>
       </div>
-      <div class="lbl" id="date-lbl">Pickup date (tomorrow only — order today)
+      <div class="lbl" id="date-lbl">Handover Date (Tomorrow Only)
         <div class="dates" id="dates" role="group" aria-labelledby="date-lbl"></div>
         <span class="note" id="cutoff-msg"></span>
       </div>
-      <div class="lbl" id="time-lbl" hidden>Pick a time (Eastern)
-        <div class="times" id="times" role="group" aria-labelledby="time-lbl"></div>
+      <div class="lbl" id="time-lbl" hidden>Preferred Handover Time (Eastern)
+        <div class="clockbox" id="times" role="group" aria-labelledby="time-lbl"></div>
       </div>
-      <div class="lbl" id="type-lbl">Pickup or delivery
+      <div class="lbl" id="type-lbl">Order fulfillment
         <div class="seg" role="radiogroup" aria-labelledby="type-lbl">
-          <label for="t-pickup"><input type="radio" name="type" id="t-pickup" value="Pickup" checked> Pickup</label>
-          <label for="t-delivery"><input type="radio" name="type" id="t-delivery" value="Delivery"> Delivery</label>
+          <label for="t-handover"><input type="radio" name="type" id="t-handover" value="CVG 200 – Personal Handover" checked> CVG 200 – Personal Handover <span class="avail">Available</span></label>
+          <label class="soon" for="t-delivery" id="t-delivery-wrap"><input type="radio" name="type" id="t-delivery" value="Home Delivery" disabled> <span id="t-delivery-text">Home Delivery – Coming Soon</span> <span class="avail" id="t-delivery-avail" hidden>Available</span></label>
         </div>
+        <span class="note">I personally bring your order to CVG 200 and hand it to you. No need to come and collect it.</span>
       </div>
       <label for="address" id="address-wrap" hidden>Delivery address
         <textarea id="address" rows="2" placeholder="House no., street, landmark"></textarea>
@@ -317,40 +535,68 @@ var WHATSAPP_NUMBER = "13306976252";
 var SHOP_NAME = "Biryani Bros";
 
 /* ---- Ordering rules ----
-   Customers can select ONLY tomorrow for pickup. Orders must be received the previous day.
+   Customers can select ONLY tomorrow for handover. Orders must be received the previous day.
    Tomorrow becomes unavailable at CUTOFF_HOUR (24h clock) today, in time zone TZ.
    DAILY_LIMIT is the most orders you take per day.
    BOOKED is the number of orders you already have for each date. Update it by hand, for example:
    var BOOKED = { "2026-10-31": 6, "2026-11-01": 15 };   (15 shows that day as Full)
-   TIME_SLOTS are the pickup times customers can choose. CLOSED_WEEKDAYS: 0 = Sunday ... 6 = Saturday. */
+   HANDOVER_START / HANDOVER_END set the range of the round clock. CLOSED_WEEKDAYS: 0 = Sunday ... 6 = Saturday. */
 var TZ = "America/New_York";
 var CUTOFF_HOUR = 19;
 var DAILY_LIMIT = 15;
 // Keep this at 1: customers may select tomorrow only, never the next 7 days.
 var DAYS_AHEAD = 1;
-// 401 and 402 shifts work Sun-Wed, so pickup is closed Thu, Fri and Sat.
+// 401 and 402 shifts work Sun-Wed, so handover is closed Thu, Fri and Sat.
 var CLOSED_WEEKDAYS = [4, 5, 6];
 var WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+// IMPORTANT: This static website does not automatically count WhatsApp orders.
+// Update this object manually as orders come in. A date closes at 15 booked orders.
 var BOOKED = {};
-var TIME_SLOTS = ["11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM"];
+/* ---- Round clock (handover time) ----
+   24-hour "HH:MM". Customers cannot pick anything outside this range.
+   HANDOVER_END is the LAST time that can be selected (20:00 = 8:00 PM).
+   MINUTE_STEP: minutes jump in steps of 5, 10, 15 or 30. */
+var HANDOVER_START = "11:00";
+var HANDOVER_END = "20:00";
+var MINUTE_STEP = 5;
+
+/* ---- "Soon" switches ----
+   false = glowing "Soon" state (locked).  true = open for customers. */
+var ENABLE_HOME_DELIVERY = false;
+var ENABLE_MORE_LOCATIONS = false;
+
+/* ---- Out of stock? ----
+   In MENU below, set  inStock: false  on any dish to swap its Add button for a disabled glowing "Soon" button.
+   Set it back to  inStock: true  when it is available again. */
+
 
 var MENU = [
-  { cat: "Rice and biryani", items: [
-    { id: "dum", name: "Chicken dum biryani", price: 17.99, veg: false },
-    { id: "cb", name: "Chicken Bagara Rice (Choice of Curry or Fry", price: 14.99, veg: false },
-    { id: "vb", name: "Veg bagara rice", price: 10, veg: true }
-  ]},
-  { cat: "Curries and fries", items: [
-    { id: "ff", name: "Chicken fry", price: 15, veg: false },
-    { id: "fo", name: "Chicken fry with onion", price: 15, veg: false },
-    { id: "cc", name: "Chicken curry", price: 10, veg: false },
-    { id: "lf", name: "Liver fry", price: 10, veg: false }
-  ]},
-  { cat: "Snacks and sweets", items: [
-    { id: "cp", name: "Chicken puff", price: 2.99, veg: false },
-    { id: "gj", name: "Gulab jamun (3 pieces)", price: 2.99, veg: true }
-  ]}
+  {
+    cat: "Rice and Biryani",
+    items: [
+      { id: "dum", name: "Chicken Dum Biryani", price: 17.99, veg: false, inStock: true },
+      { id: "cb", name: "Chicken Bagara Rice (Curry or Fry)", price: 14.99, veg: false, inStock: true },
+      
+    ]
+  },
+  {
+    cat: "Curries and Fries",
+    items: [
+      { id: "ff", name: "Chicken Fry", price: 11.99, veg: false, inStock: true },
+      { id: "fo", name: "Crispy Chicken Fry", price: 11.99, veg: false, inStock: true },
+      { id: "cc", name: "Chicken Curry", price: 11.99, veg: false, inStock: true },
+      { id: "lf", name: "Chicken Liver Fry", price: 9.99, veg: false, inStock: true }
+    ]
+  },
+  {
+    cat: "Snacks and Sweets",
+    items: [
+      { id: "cp", name: "Chicken Puff", price: 2.99, veg: false, inStock: true },
+      { id: "gj", name: "Gulab Jamun (3 Pieces)", price: 2.99, veg: true, inStock: true }
+    ]
+  }
 ];
+
 
 var qty = {};
 var byId = {};
@@ -358,6 +604,47 @@ MENU.forEach(function (g) { g.items.forEach(function (it) { byId[it.id] = it; qt
 
 function $(id) { return document.getElementById(id); }
 function money(n) { n = Math.round(n * 100) / 100; return "$" + (n % 1 === 0 ? n : n.toFixed(2)); }
+
+function triggerItemFireEffect(itemId) {
+  var row = $("row-" + itemId);
+  if (!row) return;
+
+  // Trigger fire pulse animation on the dish card
+  row.classList.remove("item-fire");
+  void row.offsetWidth; // Force CSS reflow
+  row.classList.add("item-fire");
+
+  clearTimeout(row._fireTimer);
+  row._fireTimer = setTimeout(function () {
+    row.classList.remove("item-fire");
+  }, 650);
+
+  // Spawn rising embers from the card
+  var count = 10;
+  for (var i = 0; i < count; i++) {
+    var p = document.createElement("span");
+    p.className = "dish-flame-particle";
+
+    var size = Math.floor(Math.random() * 6) + 5; // 5px to 10px
+    var leftPercent = Math.random() * 80 + 10;    // spread across card width
+    var driftX = (Math.random() - 0.5) * 50;
+    var duration = 0.55 + Math.random() * 0.35;
+
+    p.style.width = size + "px";
+    p.style.height = size + "px";
+    p.style.left = leftPercent + "%";
+    p.style.setProperty("--dx", driftX + "px");
+    p.style.animationDuration = duration + "s";
+
+    row.appendChild(p);
+
+    (function (elem, dur) {
+      setTimeout(function () {
+        if (elem.parentNode) elem.parentNode.removeChild(elem);
+      }, dur * 1000);
+    })(p, duration);
+  }
+}
 
 document.title = SHOP_NAME + " Menu";
 /* animated logo: wraps each letter in a span (for the staggered effect) and adds embers */
@@ -424,6 +711,19 @@ $("splash-go").addEventListener("click", function () {
     html += "</div>";
   });
   $("menu").innerHTML = html;
+  /* out-of-stock dishes: disabled, glowing "Soon" button */
+  MENU.forEach(function (g) {
+    g.items.forEach(function (it) {
+      if (it.inStock !== false) return;
+      var row = $("row-" + it.id), btn = row.querySelector(".add");
+      row.classList.add("soon-item");
+      btn.className = "add soon-btn";
+      btn.disabled = true;
+      btn.textContent = "Soon";
+      btn.setAttribute("data-act", "soon");
+      btn.setAttribute("aria-label", it.name + " is out of stock, coming soon");
+    });
+  });
 })();
 
 $("menu").addEventListener("click", function (e) {
@@ -431,7 +731,11 @@ $("menu").addEventListener("click", function (e) {
   if (!b) return;
   var id = b.getAttribute("data-id");
   var act = b.getAttribute("data-act");
-  if (act === "add" || act === "inc") qty[id] = Math.min(qty[id] + 1, 50);
+  if (act === "soon" || byId[id].inStock === false) return;
+  if (act === "add" || act === "inc") {
+    qty[id] = Math.min(qty[id] + 1, 50);
+    triggerItemFireEffect(id);
+  }
   if (act === "dec") qty[id] = Math.max(qty[id] - 1, 0);
   update();
   if (act === "add") {
@@ -452,24 +756,19 @@ function chosen() {
 function buildMessage() {
   var list = chosen();
   if (!list.length) return "";
-  var total = 0, count = 0;
   var lines = list.map(function (it) {
-    var n = qty[it.id];
-    total += n * it.price; count += n;
-    return n + " x " + it.name + " - " + money(n * it.price);
+    return qty[it.id] + " x " + it.name;
   });
   var name = $("name").value.trim();
   var type = document.querySelector("input[name='type']:checked").value;
   var addr = $("address").value.trim();
   var notes = $("notes").value.trim();
-  var msg = "Hi " + SHOP_NAME + ", I would like to place an order:\n\n" + lines.join("\n") +
-    "\n\nTotal: " + money(total) + "\n";
+  var msg = "Hi " + SHOP_NAME + ", I would like to place an order:\n\n" + lines.join("\n") + "\n";
   if (name) msg += "\nName: " + name;
-  msg += "\nLocation: " + document.querySelector("input[name='loc']:checked").value;
-  if (selectedDate) msg += "\nDate: " + selectedLong;
-  if (selectedTime) msg += "\nTime: " + selectedTime + " (Eastern)";
-  msg += "\nOrder type: " + type;
-  if (type === "Delivery" && addr) msg += "\nAddress: " + addr;
+  msg += "\nFulfillment: " + type;
+  if (selectedDate) msg += "\nHandover Date: " + selectedLong;
+  if (selectedTime) msg += "\nPreferred Handover Time: " + selectedTime + " (Eastern)";
+  if (type === "Home Delivery" && addr) msg += "\nAddress: " + addr;
   if (notes) msg += "\nNotes: " + notes;
   return msg;
 }
@@ -511,10 +810,10 @@ function update() {
   }
   $("copy").disabled = !ready;
   $("clear").disabled = !msg;
-  $("need").textContent = !msg ? "" : !selectedDate ? (pickupOpen ? "Pick a date to send your order." : "No pickup is available tomorrow, so orders can’t be sent right now. See the dates above.") : !selectedTime ? "Pick a time to send your order." : "";
+  $("need").textContent = !msg ? "" : !selectedDate ? (handoverOpen ? "Pick a date to send your order." : "No handover is available tomorrow, so orders can’t be sent right now. See the dates above.") : !selectedTime ? "Pick a time to send your order." : "";
 }
 
-var selectedDate = null, selectedTime = null, selectedLong = "", pickupOpen = false;
+var selectedDate = null, selectedTime = null, selectedLong = "", handoverOpen = false;
 var lastDatesSig = "", lastTimesSig = "";
 
 function etNow() {
@@ -529,13 +828,13 @@ function nextOrderText() {
   for (var k = 1; k <= 8; k++) {
     var pick = (today + k + 1) % 7;
     if (CLOSED_WEEKDAYS.indexOf(pick) < 0) {
-      return "Next order window: " + WEEKDAY_NAMES[(today + k) % 7] + " for " + WEEKDAY_NAMES[pick] + " pickup (order by " + hourLabel(CUTOFF_HOUR) + " Eastern).";
+      return "Next order window: " + WEEKDAY_NAMES[(today + k) % 7] + " for " + WEEKDAY_NAMES[pick] + " handover (order by " + hourLabel(CUTOFF_HOUR) + " Eastern).";
     }
   }
   return "";
 }
 function renderRules() {
-  $("rules").innerHTML = "<span>Pre-order today, pick up tomorrow</span><span>Order by " + hourLabel(CUTOFF_HOUR) + " the day before</span><span>" + DAILY_LIMIT + " orders per day</span><span>Pickup Sun–Wed (401 &amp; 402 shifts)</span><span>Times are Eastern</span>";
+  $("rules").innerHTML = "<span>Pre-order today, handover tomorrow</span><span>Order by " + hourLabel(CUTOFF_HOUR) + " the day before</span><span>" + DAILY_LIMIT + " orders per day</span><span>Handover Sun–Wed (401 &amp; 402 shifts)</span><span>Hand-delivered to you at CVG 200</span><span>Times are Eastern</span>";
 }
 function dayList() {
   var n = etNow(), out = [];
@@ -557,16 +856,178 @@ function dayList() {
   }
   return out;
 }
+/* ---------- Round clock ---------- */
+var ck = { ap: "PM", h: null, m: null, mode: "hour", built: false, ang: 0, dragging: false, touched: false };
+var CK_C = 120, CK_R = 86;
+function hmToMin(t) { var p = t.split(":"); return (+p[0]) * 60 + (+p[1]); }
+var T_START = hmToMin(HANDOVER_START), T_END = hmToMin(HANDOVER_END);
+function pad2(n) { return (n < 10 ? "0" : "") + n; }
+function ckTo24(h, ap) { return (h % 12) + (ap === "PM" ? 12 : 0); }
+function ckValid(h, m, ap) { var t = ckTo24(h, ap) * 60 + m; return t >= T_START && t <= T_END; }
+function ckHourOk(h, ap) { for (var m = 0; m < 60; m += MINUTE_STEP) if (ckValid(h, m, ap)) return true; return false; }
+function ckApOk(ap) { for (var h = 1; h <= 12; h++) if (ckHourOk(h, ap)) return true; return false; }
+function ckFirstMin(h, ap) { for (var m = 0; m < 60; m += MINUTE_STEP) if (ckValid(h, m, ap)) return m; return 0; }
+function ckLabel(h, m, ap) { return h + ":" + pad2(m) + " " + ap; }
+function minLabel(t) { var h = Math.floor(t / 60), ap = h >= 12 ? "PM" : "AM", h12 = h % 12 || 12; return h12 + ":" + pad2(t % 60) + " " + ap; }
+function ckDefaultAp() { return ckApOk("PM") ? "PM" : "AM"; }
+
+function ckBuild() {
+  var ticks = "";
+  for (var i = 0; i < 60; i++) {
+    var a = i * 6 * Math.PI / 180, maj = i % 5 === 0, r1 = maj ? 100 : 104, r2 = 109;
+    ticks += '<line class="ck-t' + (maj ? " maj" : "") + '" x1="' + (CK_C + r1 * Math.sin(a)).toFixed(2) + '" y1="' + (CK_C - r1 * Math.cos(a)).toFixed(2) +
+             '" x2="' + (CK_C + r2 * Math.sin(a)).toFixed(2) + '" y2="' + (CK_C - r2 * Math.cos(a)).toFixed(2) + '"/>';
+  }
+  $("times").innerHTML =
+    '<div class="ck">' +
+      '<div class="ck-top">' +
+        '<div class="ck-read" aria-live="polite">' +
+          '<button type="button" class="ck-hm" id="ck-bh" data-mode="hour" aria-label="Choose hour">--</button>' +
+          '<span class="ck-colon">:</span>' +
+          '<button type="button" class="ck-hm" id="ck-bm" data-mode="minute" aria-label="Choose minutes">--</button>' +
+        '</div>' +
+        '<div class="ck-ap" role="group" aria-label="AM or PM">' +
+          '<button type="button" data-ap="AM">AM</button><button type="button" data-ap="PM">PM</button>' +
+        '</div>' +
+      '</div>' +
+      '<svg class="ck-face" id="ck-svg" viewBox="0 0 240 240" role="group" aria-label="Round clock for choosing handover time">' +
+        '<circle class="ck-bg" cx="120" cy="120" r="116"/>' +
+        '<circle class="ck-ring" cx="120" cy="120" r="112"/>' +
+        '<g>' + ticks + '</g>' +
+        '<g id="ck-hand"><line x1="120" y1="120" x2="120" y2="' + (CK_C - CK_R) + '"/><circle class="ck-tip" cx="120" cy="' + (CK_C - CK_R) + '" r="19"/></g>' +
+        '<circle class="ck-hub" cx="120" cy="120" r="5"/>' +
+        '<g id="ck-nums"></g>' +
+      '</svg>' +
+      '<p class="ck-hint" id="ck-hint"></p>' +
+    '</div>';
+  ck.built = true;
+  ck.ap = ckDefaultAp();
+  ckWire();
+  ckDraw();
+}
+
+function ckPoint(e) {
+  var svg = $("ck-svg"), r = svg.getBoundingClientRect(), k = 240 / r.width;
+  var x = (e.clientX - r.left) * k - CK_C, y = (e.clientY - r.top) * k - CK_C;
+  if (Math.sqrt(x * x + y * y) < 24) return null;
+  var ang = Math.atan2(x, -y) * 180 / Math.PI; if (ang < 0) ang += 360;
+  if (ck.mode === "hour") { var h = Math.round(ang / 30) % 12; return h === 0 ? 12 : h; }
+  return (Math.round(ang / (6 * MINUTE_STEP)) * MINUTE_STEP) % 60;
+}
+function ckApply(v) {
+  if (v === null) return false;
+  if (ck.mode === "hour") {
+    if (!ckHourOk(v, ck.ap)) return false;
+    ck.h = v;
+    if (ck.m === null || !ckValid(v, ck.m, ck.ap)) ck.m = ckFirstMin(v, ck.ap);
+  } else {
+    if (ck.h === null || v % MINUTE_STEP !== 0 || !ckValid(ck.h, v, ck.ap)) return false;
+    ck.m = v;
+  }
+  selectedTime = ckLabel(ck.h, ck.m, ck.ap);
+  ckDraw();
+  update();
+  return true;
+}
+function ckMode(mode) {
+  if (mode === "minute" && ck.h === null) return;
+  if (mode === ck.mode) return;
+  ck.mode = mode;
+  var g = $("ck-nums"); g.classList.remove("swap"); void g.getBoundingClientRect(); g.classList.add("swap");
+  ckDraw();
+}
+function ckReset() { ck.h = null; ck.m = null; ck.mode = "hour"; ck.ap = ckDefaultAp(); ckDraw(); }
+
+function ckDraw() {
+  if (!ck.built) return;
+  var hasH = ck.h !== null;
+  $("ck-bh").textContent = hasH ? ck.h : "--";
+  $("ck-bm").textContent = hasH ? pad2(ck.m) : "--";
+  $("ck-bh").classList.toggle("on", ck.mode === "hour");
+  $("ck-bm").classList.toggle("on", ck.mode === "minute");
+  $("ck-bm").disabled = !hasH;
+  Array.prototype.forEach.call($("times").querySelectorAll("button[data-ap]"), function (b) {
+    var ap = b.getAttribute("data-ap");
+    b.setAttribute("aria-pressed", ap === ck.ap);
+    b.disabled = !ckApOk(ap);
+  });
+  var html = "", sel = ck.mode === "hour" ? ck.h : ck.m;
+  for (var i = 0; i < 12; i++) {
+    var val = ck.mode === "hour" ? (i === 0 ? 12 : i) : i * 5;
+    var a = i * 30 * Math.PI / 180, x = CK_C + CK_R * Math.sin(a), y = CK_C - CK_R * Math.cos(a);
+    var ok = ck.mode === "hour" ? ckHourOk(val, ck.ap) : (ck.h !== null && val % MINUTE_STEP === 0 && ckValid(ck.h, val, ck.ap));
+    var on = sel !== null && val === sel, txt = ck.mode === "hour" ? val : pad2(val);
+    html += '<g class="cn' + (on ? " on" : "") + (ok ? "" : " off") + '" data-v="' + val + '" role="button" tabindex="' + (ok ? 0 : -1) +
+            '" aria-disabled="' + (!ok) + '" aria-label="' + (ck.mode === "hour" ? txt + " o\u2019clock" : txt + " minutes") + '">' +
+            '<circle cx="' + x.toFixed(2) + '" cy="' + y.toFixed(2) + '" r="19"/><text x="' + x.toFixed(2) + '" y="' + y.toFixed(2) + '" dy=".35em">' + txt + '</text></g>';
+  }
+  $("ck-nums").innerHTML = html;
+  var hand = $("ck-hand");
+  if (sel === null) { hand.style.opacity = 0; }
+  else {
+    var target = ck.mode === "hour" ? (ck.h % 12) * 30 : ck.m * 6;
+    ck.ang += ((target - ck.ang) % 360 + 540) % 360 - 180;
+    hand.style.opacity = 1;
+    hand.style.transform = "rotate(" + ck.ang + "deg)";
+  }
+  $("ck-hint").textContent = ck.h === null
+    ? "Tap or drag to choose the hour. Handover " + minLabel(T_START) + " to " + minLabel(T_END) + " (Eastern)."
+    : ck.mode === "hour" ? "Now tap the minutes, or change the hour. Last time is " + minLabel(T_END) + "."
+    : "Tap or drag to set the minutes. Last time is " + minLabel(T_END) + ".";
+}
+
+function ckWire() {
+  var svg = $("ck-svg"), box = $("times");
+  function end() {
+    if (!ck.dragging) return;
+    ck.dragging = false;
+    if (ck.mode === "hour" && ck.touched && ck.h !== null) setTimeout(function () { ckMode("minute"); }, 220);
+  }
+  svg.addEventListener("pointerdown", function (e) {
+    if (e.button > 0) return;
+    ck.dragging = true; ck.touched = false;
+    try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+    if (ckApply(ckPoint(e))) ck.touched = true;
+    e.preventDefault();
+  });
+  svg.addEventListener("pointermove", function (e) { if (ck.dragging && ckApply(ckPoint(e))) ck.touched = true; });
+  svg.addEventListener("pointerup", end);
+  svg.addEventListener("pointercancel", end);
+  svg.addEventListener("keydown", function (e) {
+    var g = e.target.closest ? e.target.closest(".cn") : null;
+    if (!g || (e.key !== "Enter" && e.key !== " ")) return;
+    e.preventDefault();
+    var v = +g.getAttribute("data-v"), wasHour = ck.mode === "hour";
+    if (!ckApply(v)) return;
+    if (wasHour) ckMode("minute");
+    var again = svg.querySelector(".cn.on") || svg.querySelector(".cn:not(.off)");
+    if (again) again.focus();
+  });
+  box.addEventListener("click", function (e) {
+    var ap = e.target.closest("button[data-ap]");
+    if (ap && !ap.disabled) {
+      var v = ap.getAttribute("data-ap");
+      if (v !== ck.ap) {
+        ck.ap = v;
+        if (ck.h !== null) {
+          if (ckHourOk(ck.h, v)) { if (!ckValid(ck.h, ck.m, v)) ck.m = ckFirstMin(ck.h, v); selectedTime = ckLabel(ck.h, ck.m, v); }
+          else { ck.h = null; ck.m = null; ck.mode = "hour"; selectedTime = null; }
+          update();
+        }
+        ckDraw();
+      }
+      return;
+    }
+    var mb = e.target.closest("button[data-mode]");
+    if (mb && !mb.disabled) ckMode(mb.getAttribute("data-mode"));
+  });
+}
+
 function renderTimes() {
   $("time-lbl").hidden = !selectedDate;
-  var html = "";
-  if (selectedDate) {
-    html = TIME_SLOTS.map(function (t) {
-      var on = t === selectedTime;
-      return '<button type="button" class="tchip' + (on ? " on" : "") + '" data-time="' + t + '" aria-pressed="' + on + '">' + t + '</button>';
-    }).join("");
-  }
-  if (html !== lastTimesSig) { $("times").innerHTML = html; lastTimesSig = html; }
+  if (!selectedDate) return;
+  if (!ck.built) ckBuild();
+  if (!selectedTime && ck.h !== null) ckReset();
 }
 function refreshDates() {
   var days = dayList(), n = etNow(), html = "", still = false, firstOpen = null;
@@ -581,14 +1042,14 @@ function refreshDates() {
   if (!still) { selectedDate = null; selectedTime = null; }
   if (html !== lastDatesSig) { $("dates").innerHTML = html; lastDatesSig = html; }
   var m, d0 = days[0];
-  pickupOpen = !!firstOpen;
+  handoverOpen = !!firstOpen;
   if (d0 && d0.st.reason === "shift") {
-    m = "Pickup runs Sun–Wed only (401 and 402 shift days), so there is no pickup tomorrow (" + d0.wd + "). " + nextOrderText();
+    m = "Handover runs Sun–Wed only (401 and 402 shift days), so there is no handover tomorrow (" + d0.wd + "). " + nextOrderText();
   } else if (d0 && d0.st.reason === "cutoff") {
-    m = "The order deadline for tomorrow’s pickup (" + hourLabel(CUTOFF_HOUR) + " Eastern) has passed. " + nextOrderText();
+    m = "The order deadline for tomorrow’s handover (" + hourLabel(CUTOFF_HOUR) + " Eastern) has passed. " + nextOrderText();
   } else {
     var left = CUTOFF_HOUR * 60 - (n.h * 60 + n.min);
-    m = "Place your order today for tomorrow’s pickup. The order deadline is " + hourLabel(CUTOFF_HOUR) + " Eastern today (" + (left >= 60 ? Math.floor(left / 60) + " h " : "") + (left % 60) + " min left). Pickup days are Sun–Wed (401 and 402 shifts). We take " + DAILY_LIMIT + " orders per day. A full day shows as Full.";
+    m = "Order today for tomorrow’s handover. Deadline: " + hourLabel(CUTOFF_HOUR) + " Eastern (" + (left >= 60 ? Math.floor(left / 60) + " hr " : "") + (left % 60) + " min left). Only " + DAILY_LIMIT + " orders are accepted per day. Spots are limited and the date closes when all 15 are booked. Handover is Sun–Wed (401 and 402 shifts).";
   }
   $("cutoff-msg").textContent = m;
   renderTimes();
@@ -617,7 +1078,7 @@ $("times").addEventListener("click", function (e) {
 ["name", "address", "notes"].forEach(function (id) { $(id).addEventListener("input", update); });
 Array.prototype.forEach.call(document.querySelectorAll("input[name='type']"), function (r) {
   r.addEventListener("change", function () {
-    $("address-wrap").hidden = document.querySelector("input[name='type']:checked").value !== "Delivery";
+    $("address-wrap").hidden = document.querySelector("input[name='type']:checked").value !== "Home Delivery";
     update();
   });
 });
@@ -656,6 +1117,20 @@ $("send").addEventListener("click", function (e) {
   if (this.getAttribute("aria-disabled") === "true") e.preventDefault();
 });
 
+/* applies ENABLE_HOME_DELIVERY / ENABLE_MORE_LOCATIONS to the two "soon" options */
+function applySoonSwitches() {
+  function set(inputId, wrapId, textId, on, openText, soonText) {
+    $(inputId).disabled = !on;
+    $(wrapId).classList.toggle("soon", !on);
+    $(textId).textContent = on ? openText : soonText;
+  }
+  set("loc-more", "loc-more-wrap", "loc-more-text", ENABLE_MORE_LOCATIONS, "More locations", "More locations soon");
+  set("t-delivery", "t-delivery-wrap", "t-delivery-text", ENABLE_HOME_DELIVERY, "Home Delivery", "Home Delivery \u2013 Coming Soon");
+  $("t-delivery-avail").hidden = !ENABLE_HOME_DELIVERY;
+  $("lede-soon").hidden = ENABLE_HOME_DELIVERY;
+}
+
+applySoonSwitches();
 renderRules();
 refreshDates();
 update();
