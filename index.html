@@ -235,7 +235,7 @@ textarea { resize: vertical; }
 .ck-top { display: flex; align-items: center; justify-content: center; gap: 12px; }
 .ck-read { display: flex; align-items: center; gap: 4px; }
 .ck-colon { font: 700 34px var(--font-display); color: var(--cyan); text-shadow: 0 0 10px var(--glow-cyan); }
-.ck-hm { min-width: 66px; min-height: 58px; padding: 0 8px; background: rgba(255, 162, 26, .08); border: 1px solid var(--line); border-radius: 10px;
+.ck-hm { min-width: 58px; min-height: 50px; padding: 0 6px; background: rgba(255, 162, 26, .08); border: 1px solid var(--line); border-radius: 10px;
   font: 700 34px var(--font-display); color: var(--ink); transition: border-color .2s, box-shadow .2s, background .2s; }
 .ck-hm.on { border-color: var(--magenta); background: rgba(255, 74, 43, .14); box-shadow: 0 0 14px var(--glow-magenta); color: #fff; }
 .ck-hm:disabled { opacity: .4; cursor: not-allowed; }
@@ -243,7 +243,7 @@ textarea { resize: vertical; }
 .ck-ap button { min-width: 56px; min-height: 26px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font-weight: 700; font-size: 13px; letter-spacing: .06em; color: var(--muted); }
 .ck-ap button[aria-pressed="true"] { border-color: var(--cyan); color: #1A0F00; background: var(--cyan); box-shadow: 0 0 10px var(--glow-cyan); }
 .ck-ap button:disabled { opacity: .35; cursor: not-allowed; }
-.ck-face { width: min(100%, 280px); height: auto; touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer;
+.ck-face { width: min(100%, 240px); height: auto; touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer;
   filter: drop-shadow(0 0 10px var(--glow-cyan)) drop-shadow(0 0 22px rgba(255, 74, 43, .25)); }
 .ck-bg { fill: #0D0704; stroke: rgba(255, 162, 26, .55); stroke-width: 1.5; }
 .ck-ring { fill: none; stroke: rgba(255, 162, 26, .5); stroke-width: 1; stroke-dasharray: 2 6; transform-origin: 120px 120px; }
@@ -288,7 +288,14 @@ textarea { resize: vertical; }
   font-weight: 700;
   text-decoration: none;
   box-shadow: 0 0 16px rgba(0, 136, 204, 0.55);
+
+  label[for="name"] {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
 }
+}
+
 .wa[aria-disabled="true"] { opacity: 0.4; pointer-events: none; box-shadow: none; }
 .ghost { min-height: 48px; padding: 0 18px; border-radius: 10px; background: transparent; border: 1.5px solid var(--cyan); color: var(--cyan); font-weight: 700; box-shadow: 0 0 8px rgba(255, 162, 26, 0.3); }
 .ghost:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
@@ -518,6 +525,15 @@ textarea { resize: vertical; }
   0%, 90%, 100% { transform: rotate(0); }
   93% { transform: rotate(-8deg); }
   96% { transform: rotate(8deg); }
+}
+label:has(#name) {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #FFFFFF !important;
+}
+
+label:has(#name) input {
+  font-size: 16px;
 }
 </style>
 
