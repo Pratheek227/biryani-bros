@@ -18,15 +18,6 @@
 
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Chakra+Petch:wght@600;700&display=swap">
 
-  <style>
-    /* Keep your existing CSS here */
-  </style>
-</head>
-
-<body>
-  <!-- Keep the rest of your existing HTML and JavaScript -->
-</body>
-
 <style>
 [hidden] { display: none !important; }
 /* Layout: one narrow menu-card column (two on wide screens), order panel below, sticky total bar. Look: black page, amber and hot red neon laser edges. Single dark theme by design. */
@@ -417,6 +408,37 @@ textarea { resize: vertical; }
 
 .lede + .lede { margin-top: 10px; }
 .avail { font-size: 12px; font-weight: 700; color: var(--veg); text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ===== OFFER HIGHLIGHT (violet beam) - delete this whole block to remove the styling ===== */
+.offer-badge {
+  position: relative; flex: none; display: inline-block; overflow: hidden; padding: 5px 16px;
+  border: 1px solid #C77DFF; border-radius: 999px;
+  background: linear-gradient(110deg, #3A0CA3, #7B2CBF 50%, #3A0CA3);
+  color: #fff; font-size: 13px; letter-spacing: .08em; white-space: nowrap;
+  text-shadow: 0 0 8px #E0AAFF;
+  box-shadow: 0 0 14px rgba(199,125,255,.7), 0 0 30px rgba(123,44,191,.5);
+}
+.offer-badge::before {
+  content: ""; position: absolute; top: -20%; bottom: -20%; left: -60%; width: 40%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.85), transparent);
+  transform: skewX(-20deg);
+}
+.offer-grid .item {
+  border-color: rgba(199,125,255,.8);
+  box-shadow: 0 0 14px rgba(199,125,255,.35), inset 0 0 16px rgba(123,44,191,.15);
+}
+@keyframes offerBeam { 0% { left: -60%; } 55%, 100% { left: 140%; } }
+@keyframes offerPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(199,125,255,.55), 0 0 24px rgba(123,44,191,.4); }
+  50% { box-shadow: 0 0 22px rgba(224,170,255,.95), 0 0 46px rgba(157,78,221,.65); }
+}
+.offer-badge { animation: offerPulse 1.8s ease-in-out infinite; }
+.offer-badge::before { animation: offerBeam 2.4s ease-in-out infinite; }
+/* ===== END OFFER HIGHLIGHT ===== */
+
+/* Bigger "Your name" field */
+label[for="name"] { font-size: 20px; }
+#name { font-size: 18px; padding: 12px 14px; }
 </style>
 
 </head>
@@ -567,24 +589,29 @@ var ENABLE_MORE_LOCATIONS = false;
 
 /* ---- Out of stock? ----
    In MENU below, set  inStock: false  on any dish to swap its Add button for a disabled glowing "Soon" button.
-   Set it back to  inStock: true  when it is available again. */
+   Set it back to  inStock: true  when it is available again.
+
+   ---- Offer badge? ----
+   Add  offer: "Buy 1 Get 1",  to any category to show the glowing violet badge.
+   Delete that line to remove it. */
 
 
 var MENU = [
   {
     cat: "Rice and Biryani",
+    offer: "Buy 1 Get 1",   // <-- delete this line to remove the offer badge
     items: [
-      { id: "dum", name: "Chicken Dum Biryani", price: 17.99, veg: false, inStock: true },
-      { id: "cb", name: "Chicken Bagara Rice (Curry or Fry)", price: 14.99, veg: false, inStock: true },
+      { id: "dum", name: "Chicken Dum Biryani", price: 14.99, veg: false, inStock: true },
+      { id: "cb", name: "Chicken Bagara Rice (Curry or Fry)", price: 12.99, veg: false, inStock: true },
       
     ]
   },
   {
     cat: "Curries and Fries",
     items: [
-      { id: "ff", name: "Chicken Fry", price: 11.99, veg: false, inStock: true },
-      { id: "fo", name: "Crispy Chicken Fry", price: 11.99, veg: false, inStock: true },
-      { id: "cc", name: "Chicken Curry", price: 11.99, veg: false, inStock: true },
+      { id: "ff", name: "Chicken Fry", price: 9.99, veg: false, inStock: true },
+      { id: "fo", name: "Crispy Chicken Fry", price: 9.99, veg: false, inStock: true },
+      { id: "cc", name: "Chicken Curry", price: 9.99, veg: false, inStock: true },
       { id: "lf", name: "Chicken Liver Fry", price: 9.99, veg: false, inStock: true }
     ]
   },
@@ -696,7 +723,7 @@ $("splash-go").addEventListener("click", function () {
 (function build() {
   var html = "";
   MENU.forEach(function (g) {
-    html += "<h2>" + g.cat + "</h2><div class=\"grid\">";
+    html += "<h2>" + g.cat + (g.offer ? "<span class=\"offer-badge\">" + g.offer + "</span>" : "") + "</h2><div class=\"grid" + (g.offer ? " offer-grid" : "") + "\">";
     g.items.forEach(function (it) {
       html += "<div class=\"item\" id=\"row-" + it.id + "\">" +
         "<div class=\"info\"><div class=\"name\"><i class=\"mark " + (it.veg ? "veg" : "nonveg") + "\" aria-hidden=\"true\"></i><span>" + it.name + "</span></div>" +
