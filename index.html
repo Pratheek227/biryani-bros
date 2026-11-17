@@ -19,6 +19,9 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Chakra+Petch:wght@600;700&display=swap">
 
 <style>
+
+
+
 [hidden] { display: none !important; }
 /* Layout: one narrow menu-card column (two on wide screens), order panel below, sticky total bar. Look: black page, amber and hot red neon laser edges. Single dark theme by design. */
 :root {
@@ -410,6 +413,7 @@ textarea { resize: vertical; }
 .avail { font-size: 12px; font-weight: 700; color: var(--veg); text-transform: uppercase; letter-spacing: 0.06em; }
 
 /* ===== OFFER HIGHLIGHT (violet beam) - delete this whole block to remove the styling ===== */
+/*
 .offer-badge {
   position: relative; flex: none; display: inline-block; overflow: hidden; padding: 5px 16px;
   border: 1px solid #C77DFF; border-radius: 999px;
@@ -418,6 +422,7 @@ textarea { resize: vertical; }
   text-shadow: 0 0 8px #E0AAFF;
   box-shadow: 0 0 14px rgba(199,125,255,.7), 0 0 30px rgba(123,44,191,.5);
 }
+
 .offer-badge::before {
   content: ""; position: absolute; top: -20%; bottom: -20%; left: -60%; width: 40%; pointer-events: none;
   background: linear-gradient(100deg, transparent, rgba(255,255,255,.85), transparent);
@@ -434,11 +439,129 @@ textarea { resize: vertical; }
 }
 .offer-badge { animation: offerPulse 1.8s ease-in-out infinite; }
 .offer-badge::before { animation: offerBeam 2.4s ease-in-out infinite; }
+
+/* END */
 /* ===== END OFFER HIGHLIGHT ===== */
 
 /* Bigger "Your name" field */
 label[for="name"] { font-size: 20px; }
 #name { font-size: 18px; padding: 12px 14px; }
+
+
+
+
+
+/* ===== COMING SOON - REAL RED & CRIMSON FLAME EFFECT ===== */
+
+.soon-btn {
+  --blue: #FF4500;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  overflow: visible !important;
+  isolation: isolate;
+  padding: 7px 15px;
+  border: 1px solid #FF4500 !important;
+  border-radius: 999px;
+  background: linear-gradient(
+    110deg,
+    #8B0000,
+    #DC143C 50%,
+    #FF4500
+  ) !important;
+  color: #FFFFFF !important;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-shadow: 0 0 8px #FFB199;
+  box-shadow: 0 0 16px rgba(255,69,0,.4);
+  animation: soonBannerGlow 1.3s ease-in-out infinite;
+}
+
+/* Flame container */
+.soon-flame {
+  position: relative;
+  width: 22px;
+  height: 27px;
+  flex: none;
+  overflow: visible;
+  filter:
+    drop-shadow(0 0 5px #FF4500)
+    drop-shadow(0 0 12px rgba(220,20,60,.85));
+}
+
+/* Flame movement */
+.soon-flame .f-out {
+  transform-origin: 24px 62px;
+  animation: flameSway 1.3s ease-in-out infinite;
+}
+
+.soon-flame .f-mid {
+  transform-origin: 24px 58px;
+  animation: flameSway .9s ease-in-out infinite reverse;
+}
+
+.soon-flame .f-core {
+  transform-origin: 24px 58px;
+  animation: flameSway .65s ease-in-out infinite;
+}
+
+/* Floating red-orange embers */
+.soon-embers {
+  position: absolute;
+  left: 50%;
+  top: -7px;
+  width: 25px;
+  height: 0;
+  pointer-events: none;
+}
+
+.soon-embers i {
+  position: absolute;
+  bottom: 0;
+  left: var(--l);
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(
+    circle,
+    #FFF0D0 0%,
+    #FF4500 45%,
+    transparent 75%
+  );
+  box-shadow: 0 0 8px #FF4500;
+  animation: blueEmber var(--d) ease-out var(--dl) infinite;
+}
+
+@keyframes soonBannerGlow {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(255,69,0,.25);
+  }
+  50% {
+    box-shadow:
+      0 0 28px rgba(255,69,0,.7),
+      0 0 45px rgba(220,20,60,.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .soon-btn,
+  .soon-flame .f-out,
+  .soon-flame .f-mid,
+  .soon-flame .f-core,
+  .soon-embers i {
+    animation: none !important;
+  }
+}
+
+
+/* ===== END COMING SOON FLAME ===== */
+
+
+
+
 </style>
 
 </head>
@@ -599,10 +722,11 @@ var ENABLE_MORE_LOCATIONS = false;
 var MENU = [
   {
     cat: "Rice and Biryani",
-    offer: "Buy 1 Get 1",   // <-- delete this line to remove the offer badge
+    /*offer: "Buy 1 Get 1",   // <-- delete this line to remove the offer badge */
     items: [
-      { id: "dum", name: "Chicken Dum Biryani", price: 16.99, veg: false, inStock: true },
-      { id: "cb", name: "Chicken Bagara Rice (Curry or Fry)", price: 14.99, veg: false, inStock: true },
+      {  id: "dum", name: "Chicken Dum Biryani", price: 16.99, veg: false, inStock: false,},,
+      { id: "cb", name: "Chicken Bagara Rice (Fry)", price: 14.99, veg: false, inStock: true },
+      { id: "cb", name: "Chicken Bagara Rice (Curry)", price: 14.99, veg: false, inStock: true },
       
     ]
   },
@@ -739,18 +863,60 @@ $("splash-go").addEventListener("click", function () {
   });
   $("menu").innerHTML = html;
   /* out-of-stock dishes: disabled, glowing "Soon" button */
-  MENU.forEach(function (g) {
-    g.items.forEach(function (it) {
-      if (it.inStock !== false) return;
-      var row = $("row-" + it.id), btn = row.querySelector(".add");
-      row.classList.add("soon-item");
-      btn.className = "add soon-btn";
-      btn.disabled = true;
-      btn.textContent = "Soon";
-      btn.setAttribute("data-act", "soon");
-      btn.setAttribute("aria-label", it.name + " is out of stock, coming soon");
-    });
+
+  
+/* Out-of-stock dishes: animated blue flame Coming Soon button */
+
+
+MENU.forEach(function (g) {
+  g.items.forEach(function (it) {
+    if (it.inStock !== false) return;
+
+    var row = $("row-" + it.id);
+    if (!row) return;
+
+    var btn = row.querySelector(".add");
+    if (!btn) return;
+
+    row.classList.add("soon-item");
+    btn.className = "add soon-btn";
+    btn.disabled = true;
+
+    btn.innerHTML = `
+      <span class="soon-flame-wrap">
+        <svg class="soon-flame" viewBox="0 0 48 64"
+             xmlns="http://www.w3.org/2000/svg">
+
+          <path class="f-out"
+            fill="#DC143C"
+            d="M24 2 C20 16 5 24 9 43 C11 57 18 62 24 62 C33 62 41 53 39 41 C38 29 29 20 24 2Z"/>
+
+          <path class="f-mid"
+            fill="#FF4500"
+            d="M25 19 C19 30 13 35 17 48 C19 56 23 59 27 57 C35 53 33 43 29 35 C28 29 27 24 25 19Z"/>
+
+          <path class="f-core"
+            fill="#FFD166"
+            d="M25 38 C20 44 21 51 25 54 C30 51 30 45 25 38Z"/>
+
+        </svg>
+
+        <span class="soon-embers">
+          <i style="--l:2px;--s:3px;--d:1.2s;--dl:0s;--x:-8px"></i>
+          <i style="--l:10px;--s:2px;--d:1.5s;--dl:.4s;--x:7px"></i>
+          <i style="--l:17px;--s:3px;--d:1.3s;--dl:.7s;--x:3px"></i>
+        </span>
+      </span>
+
+      <span>Coming Soon</span>
+    `;
+
+    btn.setAttribute("data-act", "soon");
+    btn.setAttribute("aria-label", it.name + " is coming soon");
   });
+});
+
+
 })();
 
 $("menu").addEventListener("click", function (e) {
