@@ -187,24 +187,51 @@ textarea { resize: vertical; }
 .times { display: flex; flex-wrap: wrap; gap: 8px; }
 .tchip { padding: 0 14px; }
 .need { color: var(--cyan); font-weight: 700; font-size: 14px; min-height: 1.4em; margin: 10px 0 0; }
-.seg label.soon { }
-/* "Soon" options and out-of-stock buttons: shimmering sweep + soft glow so they look alive but clearly locked */
-.seg label.soon { position: relative; overflow: hidden; color: var(--muted); border: 1px dashed rgba(255, 162, 26, .6); cursor: not-allowed;
-  background: linear-gradient(110deg, rgba(255, 162, 26, .06), rgba(255, 74, 43, .06)); transition: transform .2s, box-shadow .2s, border-color .2s; }
-.seg label.soon:hover { transform: translateY(-1px); border-color: var(--cyan); box-shadow: 0 0 14px var(--glow-cyan); }
-.seg label.soon::before, .add.soon-btn::before { content: ""; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%; pointer-events: none;
-  background: linear-gradient(100deg, transparent, rgba(255, 214, 150, .38), transparent); transform: skewX(-20deg); }
-.add.soon-btn { position: relative; overflow: hidden; background: linear-gradient(110deg, #2E1E0E, #4A2F13 50%, #2E1E0E); color: #FFD18A;
-  border: 1px dashed rgba(255, 162, 26, .75); cursor: not-allowed; box-shadow: 0 0 10px rgba(255, 162, 26, .3); letter-spacing: .08em; text-transform: uppercase; font-size: 14px; }
+
+/* Soon options - no gold shimmer effect */
+.seg label.soon {
+  position: relative;
+  overflow: hidden;
+  color: var(--muted);
+  border: 1px dashed rgba(255, 162, 26, .6);
+  cursor: not-allowed;
+  background: linear-gradient(
+    110deg,
+    rgba(255, 162, 26, .06),
+    rgba(255, 74, 43, .06)
+  );
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+
+.seg label.soon:hover {
+  transform: none;
+  border-color: rgba(255, 162, 26, .6);
+  box-shadow: none;
+}
+
+/* Out-of-stock Soon button */
+.add.soon-btn {
+  position: relative;
+  overflow: hidden;
+  background: #2E1E0E;
+  color: #FFD18A;
+  border: 1px dashed rgba(255, 162, 26, .75);
+  cursor: not-allowed;
+  box-shadow: none;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
 .item.soon-item { border-style: dashed; }
 .item.soon-item .name span { opacity: .8; }
 @keyframes soonShine { 0% { left: -70%; } 60%, 100% { left: 130%; } }
 @keyframes soonGlow { 0%, 100% { box-shadow: 0 0 6px rgba(255, 162, 26, .15); } 50% { box-shadow: 0 0 16px rgba(255, 162, 26, .5); } }
 @media (prefers-reduced-motion: no-preference) {
-  .seg label.soon, .add.soon-btn { animation: soonGlow 2.4s ease-in-out infinite; }
-  .seg label.soon::before, .add.soon-btn::before { animation: soonShine 2.8s ease-in-out infinite; }
-  .add.soon-btn { animation-delay: .4s; }
+  .seg label.soon { animation: soonGlow 2.4s ease-in-out infinite; }
+  .seg label.soon::before { animation: soonShine 2.8s ease-in-out infinite; }
 }
+
 
 /* Round clock handover-time picker */
 .clockbox { display: grid; justify-items: center; }
